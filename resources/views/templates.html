@@ -1,0 +1,188 @@
+<script id="productTmpl" type="text/x-jsrender">
+    <div class="panel row">
+        <div class="col-xs-12 col-md-8">
+            {{for images}}
+            <img src="/productImages/{{:path}}" alt="Image">
+            {{/for}}
+        </div>
+        <div class="col-xs-12 col-md-4">
+            <div>{{:name}}</div>
+            <div>{{if sum}} {{:sum}} {{else}} {{:price}} {{/if}}€</div>
+            {{if locked && sum}}<span>{{:num_products}}</span>{{else sum}}<input class="form-control js-numProducts" type="text" value="{{:num_products}}"> {{/if}}
+            {{if rating}}
+            <ul class="rate-area" data-ng-product="{{:id_product}}">              
+                <input type="checkbox" class="5-star star" name="rating" value="5" /><label data-ng-stars="5-star" title="Amazing">5 stars</label>
+                <input type="checkbox" class="4-star star" name="rating" value="4" /><label data-ng-stars="4-star" title="Good">4 stars</label>
+                <input type="checkbox" class="3-star star" name="rating" value="3" /><label data-ng-stars="3-star" title="Average">3 stars</label>
+                <input type="checkbox" class="2-star star" name="rating" value="2" /><label data-ng-stars="2-star" title="Not Good">2 stars</label>
+                <input type="checkbox" class="1-star star" name="rating" value="1" /><label data-ng-stars="1-star" title="Bad">1 star</label>         
+                <span class="num-ratings">/ {{:num_ratings}}</span>        
+            </ul>            
+            {{/if}}
+            <div>
+                
+                {{if cart}}<button class="btn btn-primary js-updateCart" data-ng-product="{{:id_product}}">Update</button>{{/if}}
+                {{if !sum}}
+                <input class="form-control js-numProducts" type="text" value="1">
+                <button class="btn btn-primary js-purchase" data-ng-product="{{:id_product}}">Purchase</button>
+                {{/if}}
+                <button class="btn btn-default">
+                    <a href="/products/{{:id_product}}">Details</a>
+                </button>
+            </div>
+            
+        </div>
+
+    </div>
+</script>
+
+<script id="productSellerTmpl" type="text/x-jsrender">
+    <div class="panel row" data-ng-product="{{:id_product}}">
+        <div class="col-xs-12 col-md-8">
+            {{for images}}
+            <img src="/productImages/{{:path}}" alt="Image">
+            {{/for}}
+        </div>
+        <div class="col-xs-12 col-md-4">
+            <div class="form-group">
+                <label>Name</label>
+                <input class="js-name" type="text" value="{{:name}}" class="form-control">
+            </div>
+            <div class="form-group">
+                <label>Price</label>
+                <input class="js-price" type="text" value="{{:price}}" class="form-control">
+            </div>
+            <div class="form-group">
+                <label>Rating</label>
+                <div>{{:rating}} / {{:num_ratings}}</div>  
+            </div>
+            <div class="form-group">
+                <label>Active</label>
+                <input class="js-active" type="checkbox" name="Active" {{if active == 1}} checked{{/if}} >
+            </div>
+            <div>
+            <button class="btn btn-default">
+                <a href="/products/{{:id_product}}">Details</a>
+            </button>
+            <button class="btn btn-primary js-update" data-ng-product="{{:id_product}}">Update</button>                
+            </div>
+
+        </div>
+        
+    </div>
+</script>
+
+<script id="orderTmpl" type="text/x-jsrender">
+    {{for}}
+        <tr data-ng-order="{{:id_order}} data-ng-user="{{:id_user}}">
+            <td><span>{{:created}}</span></td>
+            <td>
+                <a href="/orders/{{:id_order}}">Details</a>
+            </td>
+        </tr>
+    {{/for}}
+</script>
+
+<script id="orderSellerTmpl" type="text/x-jsrender">
+    {{for}}
+    <tr data-ng-order="{{:id_order}} data-ng-user="{{:id_user}}">
+        <td><span>{{:created}}</span></td>
+        <td>
+            <select class="js-status">
+                <option value="-1" {{if status == -1}}selected{{/if}}>Cancelled</option>
+                <option value="0" {{if status == 0}}selected{{/if}}>Pending</option>
+                <option value="1" {{if status == 1}}selected{{/if}}>Confirmed</option>
+            </select>
+        </td>
+        <td>
+            <select class="js-processed">
+                <option value="0" {{if processed == 0}}selected{{/if}}>Pending</option>
+                <option value="1" {{if processed == 1}}selected{{/if}}>Processed</option>
+            </select>
+        </td>
+        <td>
+            <a href="/orders/{{:id_order}}">Details</a>
+        </td>
+        <td>
+            <span class="js-update">Update</span>
+        </td>
+    </tr>
+{{/for}}
+</script>
+
+<script id="sellerTmpl" type="text/x-jsrender">
+    {{for}}
+        <tr data-ng-user="{{:id_user}}">
+            <td><input disabled class="js-firstName" type="text" value="{{:first_name}}" class="form-control"></td>
+            <td><input disabled class="js-lastName" type="text" value="{{:last_name}}" class="form-control"></td>
+            <td><input disabled class="js-email" type="text" value="{{:email}}" class="form-control"></td>
+            <td><input disabled class="js-active" type="checkbox" name="Active" {{if active == 1}} checked{{/if}}></td>
+            <td>
+                <span class="js-toggleChange">Change</span>
+            </td>
+            <td>
+                <span class="js-update">Update</span>
+            </td>
+        </tr>
+    {{/for}}
+</script>
+
+<script id="customerTmpl" type="text/x-jsrender">
+    {{for}}
+        <tr data-ng-user="{{:id_user}}">
+            <td><input disabled class="js-firstName" type="text" value="{{:first_name}}" class="form-control"></td>
+            <td><input disabled class="js-lastName" type="text" value="{{:last_name}}" class="form-control"></td>
+            <td><input disabled class="js-email" type="text" value="{{:email}}" class="form-control"></td>
+            <td><input disabled class="js-address" type="text" value="{{:address}}" class="form-control"></td>
+            <td><input disabled class="js-street" type="text" value="{{:street}}" class="form-control"></td>
+            <td><input disabled class="js-phone" type="text" value="{{:phone}}" class="form-control"></td>
+            <td><input disabled class="js-active" type="checkbox" name="Active" {{if active == 1}} checked{{/if}}></td>
+            <td>
+                <span class="js-toggleChange">Change</span>
+            </td>
+            <td>
+                <span class="js-update">Update</span>
+            </td>
+        </tr>
+    {{/for}}
+</script>
+
+<script id="checkTmpl" type="text/x-jsrender">
+    <table class="table">
+            <thead>
+                <th>Product</th>
+                <th>Quantity</th>
+                <th>Price</th>
+                <th>Sum</th>
+            </thead>
+            <tbody>
+                    {{for items}}
+                    <tr>
+                        <td>{{:name}}</td>
+                        <td>{{:num_products}}</td>
+                        <td>{{:price}}</td>
+                        <td>{{:sum}}</td>
+                    </tr>
+                    {{/for}}
+            </tbody>
+        </table>
+
+    <div>
+        <span>Total: </span>
+        <span><strong>{{:total}}€</strong></span>
+    </div>
+</script>
+
+<script>
+        $.views.settings.allowCode(true);
+</script>
+
+
+<!-- <script>
+    $(document).ready(function () {
+        var tmpl = $.templates("#myTemplate");
+
+        var t = {"test": "sdagasdfhasdhd"};
+        $("body").prepend(tmpl.render(t));
+    });
+</script> -->
