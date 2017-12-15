@@ -45,6 +45,7 @@ class productController extends BaseController
             $rating = $req->input("rating");
             $id_product = $req->input("id_product");
             $id_user = (new authController)->getUserByType($auth, "customer");
+            //
             if($id_user) {
                 $product = DB::table("products")
                         ->where("id_product", $id_product)
