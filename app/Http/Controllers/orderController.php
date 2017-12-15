@@ -19,7 +19,10 @@ class orderController extends BaseController
         $auth = $req->header("auth");
         $user = (new authController)->getUser($auth);
         if (!$user) {
-            return json_encode(["message" => "Unauthorized."]);
+            return json_encode([
+                "code" => 403,
+                "message" => "Unauthorized."
+                ]);
         }
         if ($user->type == "customer") {
             $orders = DB::table("orders")->where("id_user", $user->id_user)->where("finished", 1)->orderBy("created", "desc")->get();
@@ -30,7 +33,10 @@ class orderController extends BaseController
             return json_encode($orders);
         }
         
-        return json_encode(["message" => "Unauthorized."]);
+        return json_encode([
+            "code" => 403,
+            "message" => "Unauthorized."
+            ]);
     }
 
     public function getOrder($id) {
@@ -86,10 +92,16 @@ class orderController extends BaseController
                                     "num_products" => $num_products,
                                     "price" => $product->price,
                                 ]);
-                                return json_encode(["message" => $product->name . " added to cart."]);
+                                return json_encode([
+                                    "code" => 200,
+                                    "message" => $product->name . " added to cart."
+                                    ]);
                             }
                             else {
-                                return json_encode(["message" => $num_products." items added to cart."]);
+                                return json_encode([
+                                    "code" => 200,
+                                    "message" => $num_products." items added to cart."
+                                    ]);
                             }                 
                     }
                     else {
@@ -107,10 +119,16 @@ class orderController extends BaseController
                                 "num_products" => $num_products,
                                 "price" => $product->price,
                             ]);
-                            return json_encode(["message" => $product->name . " added to cart."]);
+                            return json_encode([
+                                "code" => 200,
+                                "message" => $product->name . " added to cart."
+                                ]);
                         }
                         else {
-                            return json_encode(["message" => "Cart updated."]);
+                            return json_encode([
+                                "code" => 200,
+                                "message" => "Cart updated."
+                                ]);
                         }
                     }
           
@@ -121,11 +139,17 @@ class orderController extends BaseController
                     ->where("id_order", $latest->id_order)
                     ->where("id_product", $id_product)
                     ->delete();
-                    return json_encode(["message" => "Item removed."]);
+                    return json_encode([
+                        "code" => 200,
+                        "message" => "Item removed."
+                        ]);
                 }
             }
         }
-        return json_encode(["message" => "Unauthorized."]);
+        return json_encode([
+            "code" => 403,
+            "message" => "Unauthorized."
+            ]);
     }
 
     public function updateOrder(Request $req) {
@@ -140,9 +164,15 @@ class orderController extends BaseController
                     "status" =>  $status,
                     "processed" =>  $processed
                 ]);
-            return json_encode(["message" => "Order updated."]);
+            return json_encode([
+                "code" => 200,
+                "message" => "Order updated."
+                ]);
         }
-        return json_encode(["message" => "Unauthorized."]);
+        return json_encode([
+            "code" => 403,
+            "message" => "Unauthorized."
+            ]);
     }
 
     public function getLatestOrder(Request $req) {
@@ -170,7 +200,10 @@ class orderController extends BaseController
                 ]
             );
         }
-        return json_encode(["message" => "Unauthorized"]);
+        return json_encode([
+            "code" => 403,
+            "message" => "Unauthorized"
+            ]);
     }
 
     public function finishOrder(Request $req) {
@@ -191,9 +224,15 @@ class orderController extends BaseController
                         "finished" => 0,
                         "processed" => 0,
                     ]);
-            return json_encode(["message" => "Purchase complete."]);
+            return json_encode([
+                "code" => 200,
+                "message" => "Purchase complete."
+                ]);
         }
-        return json_encode(["message" => "Unauthorized."]);
+        return json_encode([
+            "code" => 403,
+            "message" => "Unauthorized."
+            ]);
     }
 
     public function newOrder(Request $req) {
@@ -217,7 +256,10 @@ class orderController extends BaseController
 
             return json_encode(["id_order" => $id_order]);
         }
-        return json_encode(["message" => "Unauthorized."]);
+        return json_encode([
+            "code" => 403,
+            "message" => "Unauthorized."
+            ]);
     }
 
     public function addProduct(Request $req) {
@@ -238,7 +280,10 @@ class orderController extends BaseController
 
             return json_encode(["id_order" => $id_order]);
         }
-        return json_encode(["message" => "Unauthorized."]);
+        return json_encode([
+            "code" => 403,
+            "message" => "Unauthorized."
+            ]);
     }
 
     public function removeProduct(Request $req) {
@@ -262,7 +307,10 @@ class orderController extends BaseController
 
             return json_encode(["id_order" => $id_order]);
         }
-        return json_encode(["message" => "Unauthorized."]);
+        return json_encode([
+            "code" => 403,
+            "message" => "Unauthorized."
+            ]);
     }
 
 

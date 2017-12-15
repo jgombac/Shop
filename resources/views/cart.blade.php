@@ -69,7 +69,12 @@
 
                 ng.api.updateCart(data)
                     .done(function (response) {
-                        console.log(response);
+                        if (response.code == 200) {
+                            window.location.reload();
+                        }
+                        else {
+                            alert(response.message)
+                        }
                     })
                     .fail(function (error) {
                         console.log(error);
@@ -84,7 +89,12 @@
 
                 ng.api.finishOrder(data)
                     .done(function (response) {
-                        console.log(response);
+                        if (response.code == 200) {
+                            window.location.pathname = "/products";
+                        }
+                        else {
+                            alert(response.message)
+                        }
                     })
                     .fail(function (error) {
                         console.log(error);

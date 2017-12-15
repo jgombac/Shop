@@ -18,7 +18,7 @@
         <label for="last-name">Last name</label>
         <input type="text" id="last-name" class="form-control">
     </div>
-    <input type="button" id="register" value="Register seller">
+    <input type="button" class="btn btn-primary" id="register" value="Register seller">
 </div>
 @stop
 
@@ -36,7 +36,10 @@
             ng.api.register(data)
                 .done(function (response){
                     console.log(response)
-                    if (response.message != undefined){
+                    if (response.code == 200) {
+                        window.location.pathname = "/sellers";
+                    }
+                    else if (response.message != undefined){
                         alert(response.message);
                     }
                 })

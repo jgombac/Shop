@@ -2,8 +2,9 @@
 
 @section('content')
 <div class="container">
+    <p><a href="/register" class="btn btn-primary">Register new seller</a></p>
 
-    <table>
+    <table class="table">
         <thead>
             <th>First name</th>
             <th>Last name</th>

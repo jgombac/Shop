@@ -2,7 +2,7 @@
 
 @section('content')
 <div class="container">
-    <table>
+    <table class="table">
         <thead>
         @if(isset($type) && $type == "Seller")
             <th>Created</th>

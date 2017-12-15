@@ -1,15 +1,16 @@
 @extends('layouts.layout')
 
 @section('content')
-<div class="">
+<div class="container">
 
-    <table>
+    <table class="table">
         <thead>
             <th>First name</th>
             <th>Last name</th>
             <th>Email</th>
             <th>Address</th>
             <th>Street</th>
+            <th>Postal</th>
             <th>Phone</th>
             <th>Active</th>
             <th></th>
@@ -54,11 +55,18 @@
                             "active": $(".js-active", context).is(":checked"),
                             "address": $(".js-address", context).val(),
                             "street": $(".js-street", context).val(),
+                            "postal": parseInt($(".js-postal", context).val()),
                             "phone": $(".js-phone", context).val(),
                         }
                         console.log(data);
                         ng.api.updateUser(data)
                             .done(function (response) {
+                                if (response.code == 200) {
+                                    window.location.reload();
+                                }
+                                else {
+                                    alert(response.message);
+                                }
                                 console.log(response);
                             })
                             .fail(function (error) {

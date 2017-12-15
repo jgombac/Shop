@@ -8413,3 +8413,7 @@ button.close {
   left: 2px;
 }
 
+.table input[type="text"] {
+  width: 80px !important;
+}
+
