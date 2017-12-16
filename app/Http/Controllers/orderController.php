@@ -10,33 +10,76 @@ use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use Illuminate\Database\QueryException;
+use \App\Order;
+use \App\User;
+use \App\Auth;
+use \App\Product;
 //use \App\Mail\PotrditevRacuna;
 
 class orderController extends BaseController
 {
 
+    public function testOrder(Request $req) {
+        $token = "sOhuTrvKbxUUkKC9PIzMHljkFm4yhwzpTp8mOMlnoUywPr3z7nuMfGQgcuxI";
+        $profile = Auth::find($token)->user->profile();
+        // $orders = Order::cart(2);
+        return response()->json($profile);
+        // return json_encode([
+        //     "profile" => $profile,
+        //     ]);
+    }
+
     public function orders(Request $req) {      
-        $auth = $req->header("auth");
-        $user = (new authController)->getUser($auth);
-        if (!$user) {
-            return json_encode([
-                "code" => 403,
-                "message" => "Unauthorized."
+        $auth = Auth::find($req->header("auth"));
+        if(!$auth) {
+            return response()->json("Unauthorized", 401);
+        }
+        switch ($auth->user->type) {
+            case "customer":              
+                return response()->json(Order::history($auth->user->id_user));
+                break;
+            case "seller":
+                return response()->json(Order::finished());
+                break;
+            default:
+                return response()->json("Unauthorized", 401);
+        }
+    }
+
+    public function cart(Request $req) {
+        $auth = Auth::find($req->header("auth"));
+        if(!$auth) {
+            return response()->json("Unauthorized", 401);
+        }
+        switch ($auth->user->type) {
+            case "customer":              
+                $cart = Order::cart($auth->user->id_user);
+                return response()->json(Order::find($cart->id_order)->withProducts());
+                break;
+            default:
+                return response()->json("Unauthorized", 401);
+        }
+    }
+
+    public function updateOrder(Request $req) {
+        $auth = Auth::find($req->header("auth"));
+        if(!$auth) {
+            return response()->json("Unauthorized", 401);
+        }
+        switch ($auth->user->type) {
+            case "seller":              
+                $id_order = $req->input("id_order");
+                $processed = $req->input("processed");
+                $status = $req->input("status");
+                $order = Order::where("id_order", $id_order)->update([
+                    "processed" => $processed,
+                    "status" => $status,
                 ]);
+                return response()->json("Order updated");
+                break;
+            default:
+                return response()->json("Unauthorized", 401);
         }
-        if ($user->type == "customer") {
-            $orders = DB::table("orders")->where("id_user", $user->id_user)->where("finished", 1)->orderBy("created", "desc")->get();
-            return json_encode($orders);
-        }
-        else if ($user->type == "seller") {
-            $orders = DB::table("orders")->where("finished", 1)->orderBy("created", "desc")->get();
-            return json_encode($orders);
-        }
-        
-        return json_encode([
-            "code" => 403,
-            "message" => "Unauthorized."
-            ]);
     }
 
     public function getOrder($id) {
@@ -62,126 +105,55 @@ class orderController extends BaseController
     }
 
 
+
     public function updateCart(Request $req) {
-        $auth = $req->header("auth");
-        $type = (new authController)->getUserType($auth);
-        $id_product = $req->input("id_product");
-        $num_products = $req->input("num_products");
-        $finished = $req->input("finished");
-        $add = $req->input("add");
-
-        if ($type == "customer") {
-            if ($finished) {
-                $latest = DB::table("orders")->where("status", 0)->where("finished", 0)->where("processed", 0)->orderBy("created", "desc")->update(["finished" => 1])->first();   
-                return json_encode(["message" => "Order added to queue."]);                 
-            }
-            else if ($id_product && is_int($num_products)) {
-                $latest = DB::table("orders")->where("status", 0)->where("finished", 0)->where("processed", 0)->orderBy("created", "desc")->first();                       
-                if ($num_products > 0) {
-                    if ($add) {
-                        $exist = DB::table("in_order")
-                            ->where("id_order", $latest->id_order)
-                            ->where("id_product", $id_product)
-                            ->increment("num_products", $num_products);
-                            if (!$exist) {
-                                //If new to cart
-                                $product = DB::table("products")->where("id_product", $id_product)->first();
-                                $in_order = DB::table("in_order")->insert([
-                                    "id_order" => $latest->id_order,
-                                    "id_product" => $id_product,
-                                    "num_products" => $num_products,
-                                    "price" => $product->price,
-                                ]);
-                                return json_encode([
-                                    "code" => 200,
-                                    "message" => $product->name . " added to cart."
-                                    ]);
-                            }
-                            else {
-                                return json_encode([
-                                    "code" => 200,
-                                    "message" => $num_products." items added to cart."
-                                    ]);
-                            }                 
-                    }
-                    else {
-                        $exist = DB::table("in_order")
-                        ->where("id_order", $latest->id_order)
-                        ->where("id_product", $id_product)
-                        ->update(["num_products" => $num_products]);
-
-                        if (!$exist) {
-                            //If new to cart
-                            $product = DB::table("products")->where("id_product", $id_product)->first();
-                            $in_order = DB::table("in_order")->insert([
-                                "id_order" => $latest->id_order,
-                                "id_product" => $id_product,
-                                "num_products" => $num_products,
-                                "price" => $product->price,
-                            ]);
-                            return json_encode([
-                                "code" => 200,
-                                "message" => $product->name . " added to cart."
-                                ]);
-                        }
-                        else {
-                            return json_encode([
-                                "code" => 200,
-                                "message" => "Cart updated."
-                                ]);
-                        }
-                    }
-          
+        $auth = Auth::find($req->header("auth"));
+        if(!$auth) {
+            return response()->json("Unauthorized", 401);
+        }
+        switch ($auth->user->type) {
+            case "customer":   
+                $cart = Order::cart($auth->user->id_user);        
+                $id_product = $req->input("id_product");
+                $num_products = $req->input("num_products");
+                $add = $req->input("add");
+                //Might remove
+                $finished = $req->input("finished");
+                if ($finished) {
+                    $cart->finished = true;
+                    $cart->save();
+                    return response()->json("Order added to queue.");
+                }
+                if ($num_products <= 0) {
+                    $cart->removeProduct($id_product);
+                    return response()->json("Item removed.");
                 }
                 else {
-                    //has to be removed from cart
-                    $removed = DB::table("in_order")
-                    ->where("id_order", $latest->id_order)
-                    ->where("id_product", $id_product)
-                    ->delete();
-                    return json_encode([
-                        "code" => 200,
-                        "message" => "Item removed."
-                        ]);
+                    $item = $cart->hasProduct($id_product);
+                    if ($item) {
+                        $cart->updateProductVolume($item, $num_products, $add);
+                        return response()->json("Volume updated.");
+                    }
+                    else {
+                        $cart->addNewProduct($id_product, $num_products);
+                        return response()->json("Item added.");
+                    }
                 }
-            }
+                return response()->json();
+                break;
+            default:
+                return response()->json("Unauthorized", 401);
         }
-        return json_encode([
-            "code" => 403,
-            "message" => "Unauthorized."
-            ]);
-    }
 
-    public function updateOrder(Request $req) {
-        $auth = $req->header("auth");
-        $type = (new authController)->getUserType($auth);
-        $id_order = $req->input("id_order");
-        $status = $req->input("status");
-        $processed = $req->input("processed");
-        if ($type == "seller") {
-            $order = DB::table("orders")->where("id_order", $id_order)
-                ->update([
-                    "status" =>  $status,
-                    "processed" =>  $processed
-                ]);
-            return json_encode([
-                "code" => 200,
-                "message" => "Order updated."
-                ]);
-        }
-        return json_encode([
-            "code" => 403,
-            "message" => "Unauthorized."
-            ]);
     }
 
     public function getLatestOrder(Request $req) {
         $auth = $req->header("auth");
 
-        $type = (new authController)->getUserType($auth);
-        if ($type == "customer") {
+        $user = (new authController)->getUser($auth);
+        if ($user->type == "customer") {
             //change to filter latest
-            $latest = DB::table("orders")->where("status", 0)->where("finished", 0)->where("processed", 0)->orderBy("created", "desc")->first();
+            $latest = DB::table("orders")->where("id_user", $user->id_user)->where("status", 0)->where("finished", 0)->where("processed", 0)->orderBy("created", "desc")->first();
             $products = DB::table("in_order")
                     ->join("products", "in_order.id_product", "=", "products.id_product")
                     ->where("id_order", $latest->id_order)
@@ -207,32 +179,30 @@ class orderController extends BaseController
     }
 
     public function finishOrder(Request $req) {
-        $auth = $req->header("auth");     
-        $user = (new authController)->getUser($auth);
-        if ($user->type == "customer") {
-            $id_order = $req->input("id_order");
-            //check if not empty
-            $in_order = DB::table("in_order")->where("id_order", $id_order)->first();
-            if(!$in_order) {
-                return json_encode(["message" => "Order is empty."]);
-            }
-
-            $order = DB::table("orders")->where("id_order", $id_order)->update(["finished" => 1]);
-            $neworder = DB::table("orders")->insertGetId([
-                        "id_user" => $user->id_user,
-                        "status" => 0,
-                        "finished" => 0,
-                        "processed" => 0,
-                    ]);
-            return json_encode([
-                "code" => 200,
-                "message" => "Purchase complete."
-                ]);
+        $auth = Auth::find($req->header("auth"));
+        if(!$auth) {
+            return response()->json("Unauthorized", 401);
         }
-        return json_encode([
-            "code" => 403,
-            "message" => "Unauthorized."
-            ]);
+        switch ($auth->user->type) {
+            case "customer":              
+                $cart = Order::cart($auth->user->id_user);
+                $order = Order::find($cart->id_order);
+                if ($order->products->count() > 0) {
+                    $order->finished = true;
+                    $order->save();
+                    $newOrder = new Order;
+                    $newOrder->id_user = $auth->user->id_user;
+                    $newOrder->finished = 0;
+                    $newOrder->status = 0;
+                    $newOrder->processed = 0;
+                    $newOrder->save();
+                    return response()->json("Order complete");
+                }
+                return response()->json("Order doesn't have any products.", 400);
+                break;
+            default:
+                return response()->json("Unauthorized", 401);
+        }
     }
 
     public function newOrder(Request $req) {
@@ -262,56 +232,7 @@ class orderController extends BaseController
             ]);
     }
 
-    public function addProduct(Request $req) {
-        $auth = $req->input("auth");
-        $id_user = (new authController)->getUserByType($auth, "customer");
-        if ($id_user) {
-            $id_product = $req->input("id_product");
-            $id_order = $req->input("id_order");
-            $product = DB::table("products")->where("id_product", $id_product)->first();
-            $order= DB::table("orders")
-                    ->where("id_order", $id_order)
-                    ->where("id_user", $id_user)
-                    ->increment("price_sum", $product->price);
-            $in_order = DB::table("in_order")->insert([
-                    "id_order" => $id_order,
-                    "id_product" =>$id_product
-                ]);
 
-            return json_encode(["id_order" => $id_order]);
-        }
-        return json_encode([
-            "code" => 403,
-            "message" => "Unauthorized."
-            ]);
-    }
-
-    public function removeProduct(Request $req) {
-        $auth = $req->input("auth");
-        $id_user = (new authController)->getUserByType($auth, "customer");
-        if ($id_user) {
-            $id_product = $req->input("id_product");
-            $id_order = $req->input("id_order");
-            $product = DB::table("products")->where("id_product", $id_product)->first();
-            $order = DB::table("orders")
-                    ->where("id_order", $id_order)
-                    ->where("id_user", $id_user)
-                    ->decrement("price_sum", $product->price);
-            $first =  DB::table("in_order")
-                    ->where("id_order", $id_order)
-                    ->where("id_product", $id_product)
-                    ->first();
-            $in_order = DB::table("in_order")
-                    ->where("id_in_order", $first->id_in_order)
-                    ->delete();
-
-            return json_encode(["id_order" => $id_order]);
-        }
-        return json_encode([
-            "code" => 403,
-            "message" => "Unauthorized."
-            ]);
-    }
 
 
 

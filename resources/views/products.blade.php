@@ -14,25 +14,30 @@
             .done(function (response) {
                 console.log(response);
                 response.forEach(function (item) {
-                    item.product["images"] = item.images.slice(0, 1);
+                    item["images"] = item.images.slice(0, 1);
                     var tmpl = $.templates("#productTmpl");
                     @if(isset($type) && $type == "Seller")
                     tmpl = $.templates("#productSellerTmpl");
                     @endif
-                    $(".js-productTable").append(tmpl.render(item.product));
-                    $(".rate-area[data-ng-product='"+ item.product.id_product +"'] ."+Math.round(item.product.rating)+"-star").prop("checked", true);
-                    $(".rate-area[data-ng-product='"+ item.product.id_product +"'] [data-ng-stars]").on("click", function () {
+                    $(".js-productTable").append(tmpl.render(item));
+                    $(".rate-area[data-ng-product='"+ item.id_product +"'] ."+Math.round(item.rating)+"-star").prop("checked", true);
+                    $(".rate-area[data-ng-product='"+ item.id_product +"'] [data-ng-stars]").on("click", function () {
                         var stars = $(this).attr("data-ng-stars");
-                        $(".rate-area[data-ng-product='"+ item.product.id_product +"'] .star").prop("checked", false);
-                        $(".rate-area[data-ng-product='"+ item.product.id_product +"'] ." + stars).prop("checked", true);
+                        $(".rate-area[data-ng-product='"+ item.id_product +"'] .star").prop("checked", false);
+                        $(".rate-area[data-ng-product='"+ item.id_product +"'] ." + stars).prop("checked", true);
                         var rating = stars.split("-")[0];
                         var data = {
-                            "id_product": item.product.id_product,
+                            "id_product": item.id_product,
                             "rating": rating,
                         };
                         ng.api.rateProduct(data)
                             .done(function (response) {
-                                console.log(response);
+                                if (response.code == 200) {
+                                    window.location.reload();
+                                }
+                                else {
+                                    alert(response.message);
+                                }
                             })
                             .fail(function (error) {
                                 console.log(error);
@@ -87,7 +92,13 @@
 
             ng.api.updateProduct(data)
                 .done(function (response) {
-                    console.log(response);
+                    if (response.code == 200) {
+                        window.location.reload();
+                    }
+                    else {
+                        alert(response.message);
+                    }
+
                 })
                 .fail( function (error) {
                     console.log(error);

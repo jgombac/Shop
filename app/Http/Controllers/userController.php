@@ -261,7 +261,7 @@ class userController extends BaseController
                     ->first();
                 if ($customer != null){
                     //check if user has a cart
-                    $latest = DB::table("orders")->where("status", 0)->where("finished", 0)->where("processed", 0)->orderBy("created", "desc")->first();
+                    $latest = DB::table("orders")->where("id_user", $user->id_user)->where("status", 0)->where("finished", 0)->where("processed", 0)->orderBy("created", "desc")->first();
                     if (!$latest){                   
                         $order = DB::table("orders")->insertGetId([
                             "id_user" => $user->id_user,

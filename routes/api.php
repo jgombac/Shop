@@ -25,6 +25,8 @@ Route::post("profile", "userController@updateProfile");
 Route::post("userupdate", "userController@updateUser");
 
 
+Route::get("testorder", "orderController@testOrder");
+
 Route::get("products", "productController@products");
 Route::post("products/update", "productController@updateProduct");
 Route::post("products/rate", "productController@rateProduct");
@@ -38,10 +40,12 @@ Route::post("cart/update", "orderController@updateCart");
 Route::post("cart/finish", "orderController@finishOrder");
 Route::post("orders/update", "orderController@updateOrder");
 Route::post("orders/remove", "orderController@removeProduct");
-Route::get("cart", "orderController@getLatestOrder");
+Route::get("cart", "orderController@cart");
 Route::get("orders/{id}", "orderController@getOrder");
 
 
 
 Route::get('customers', "userController@customers");
 Route::get('sellers', "userController@sellers");
+
+Route::get("admin", "AdminController@index");

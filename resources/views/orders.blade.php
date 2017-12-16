@@ -49,8 +49,8 @@
                     var context = $(this).closest("tr");
                     var data = {
                         "id_order": parseInt($(context).attr("data-ng-order")),
-                        "status": parseInt($(".js-status").val()),
-                        "processed": parseInt($(".js-processed").val())
+                        "status": parseInt($(".js-status", context).val()),
+                        "processed": parseInt($(".js-processed", context).val())
                     }
 
 

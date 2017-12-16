@@ -38,11 +38,9 @@
         var orderId = null;
         ng.api.getLatestOrder()
             .done(function (response) {
-                // var tmpl = $.templates("#orderTmpl");
-                // $(".js-orderTable").append(tmpl.render(response.order));
+                console.log(response);
                 orderId = response.order.id_order;
                 var tmpl = $.templates("#productTmpl");
-                // $(".js-orderTable").append(response.products.length + " products.");
                 if (response.products.length == 0) {
                     $("#checkout").prop("disabled", true);
                 }

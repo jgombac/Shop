@@ -12,90 +12,123 @@ use Illuminate\Http\Request;
 use Carbon\Carbon;
 use Illuminate\Database\QueryException;
 
+use App\Product;
+use App\Order;
+use App\Auth;
+use App\User;
+use App\Image;
+
 class productController extends BaseController
 {
 
     public function products(Request $req) {
-        $results = [];
-        if ($req->header("auth")){
-            $auth = $req->header("auth");
-            $type = (new authController)->getUserType($auth);
-            if($type == "seller") {
-                $products = DB::table("products")->get();
-                foreach ($products as $product) {
-                    $id_product = $product->id_product;
-                    $images = DB::table("images")->select("path")->where("id_product", $id_product)->get();
-                    array_push($results, ["product" => $product, "images" => $images]);
-                }
-                return json_encode($results);
-            }
+        $auth = Auth::find($req->header("auth"));
+        if(!$auth) {
+            return response()->json(Product::active());
         }
-        $products = DB::table("products")->select("id_product", "name", "price", "rating", "num_ratings")->where("active", 1)->get();
-        foreach ($products as $product) {
-            $id_product = $product->id_product;
-            $images = DB::table("images")->select("path")->where("id_product", $id_product)->get();
-            array_push($results, ["product" => $product, "images" => $images]);
+        switch ($auth->user->type) {
+            case "customer":              
+                return response()->json(Product::active());
+                break;
+            case "seller":
+                return response()->json(Product::getAll());
+                break;
+            default:
+                return response()->json("Unauthorized", 401);
         }
-        return json_encode($results);
     }
 
     public function rateProduct(Request $req) {
-        if ($req->header("auth")){
-            $auth = $req->header("auth");
-            $rating = $req->input("rating");
-            $id_product = $req->input("id_product");
-            $id_user = (new authController)->getUserByType($auth, "customer");
-            //
-            if($id_user) {
-                $product = DB::table("products")
-                        ->where("id_product", $id_product)
-                        ->first();
-                $newnumratings = $product->num_ratings + 1;
-                $newrating = ($product->num_ratings * $product->rating + $rating) / $newnumratings;
-                
-                $updated = DB::table("products")
-                        ->where("id_product", $id_product)
-                        ->update(["rating" => $newrating, "num_ratings" => $newnumratings]);
-                return json_encode(["message" => "Rating has been updated"]);
-            }
+        $auth = Auth::find($req->header("auth"));
+        if(!$auth) {
+            return response()->json("Unauthorized", 401);
         }
-        return json_encode(["message" => "Unauthorized"]);
+        switch ($auth->user->type) {
+            case "customer":
+                $id_product = $req->input("id_product");
+                $rating = $req->input("rating");
+                if ($rating > 5 || $rating < 1) {
+                    return response()->json("Invalid rating: ".$rating, 400);
+                }
+                $product = Product::find($id_product);
+                if(!$product || !$product->active) {
+                    return response()->json("Can't rate this product", 400);
+                }        
+                $rate = Product::find($id_product)->rate($rating);     
+                return response()->json(Product::find(1));
+                break;
+            default:
+                return response()->json("Unauthorized", 401);
+        }
     }
 
     public function getProduct(Request $req, $id) {
-        if ($req->header("auth")){
-            $auth = $req->header("auth");
-            $type = (new authController)->getUserType($auth);
-            if($type == "seller") {
-                $product = DB::table("products")->where("id_product", $id)->first();
-                $images = DB::table("images")->select("path")->where("id_product", $id)->get();
-                return json_encode(["product" => $product, "images" => $images]);
+        $auth = Auth::find($req->header("auth"));
+        $product = Product::find($id);
+        if(!$auth || $auth->user->type == "customer") {
+            if (!$product) {
+                return response()->json("Cant view this product", 400);
             }
         }
-        $product = DB::table("products")->select("id_product", "name", "price", "rating", "num_ratings")->where("id_product", $id)->where("active", 1)->first();
-        $images = DB::table("images")->select("path")->where("id_product", $id)->get();
-        return json_encode(["product" => $product, "images" => $images]);
+        return response()->json($product);
     }
 
     public function updateProduct(Request $req) {
-        $auth = $req->header("auth");
-        $idProduct = $req->input("id_product");
-
-        $type = (new authController)->getUserType($auth);
-        if ($type == "seller") {
-            $active = $req->input("active");
-            $name = $req->input("name");
-            $price = $req->input("price");
-            $update = DB::table("products")->where('id_product', $idProduct)
-                    ->update([
-                        'active' => $active,
-                        "name" => $name,
-                        "price" => $price,
-                        ]);
-            return json_encode(["message" => "Product has been updated."]);
+        $auth = Auth::find($req->header("auth"));
+        if(!$auth) {
+            return response()->json("Unauthorized", 401);
         }
-        else {
-            return json_encode(["message" => "Action not permitted."]);
+        switch ($auth->user->type) {
+            case "customer":              
+                return response()->json("Unauthorized", 401);
+                break;
+            case "seller":
+                $id_product = $req->input("id_product");
+                $name = $req->input("name");
+                $price = $req->input("price");
+                $active = $req->input("active");
+                if (!isset($id_product) || !isset($name)  || !isset($price)  || !isset($active)) {
+                    return response()->json("Some parameters are missing", 400);
+                }
+                $product = Product::find($id_product)->updateProduct($name, $price, $active);
+                return response()->json(Product::find($id_product));
+                break;
+            default:
+                return response()->json("Unauthorized", 401);
+        }
+    }
+
+    public function manageImage(Request $req) {
+        $auth = Auth::find($req->header("auth"));
+        if(!$auth) {
+            return response()->json("Unauthorized", 401);
+        }
+        switch ($auth->user->type) {
+            case "customer":              
+                return response()->json("Unauthorized", 401);
+                break;
+            case "seller":
+                $id_product = $req->input("id_product");
+                $path = $req->input("path");
+                $action = $req->input("action");
+                if ($id_product || $path || $action) {
+                    return response()->json("Some parameters are missing", 400);
+                }
+                if ($action == "add") {
+                    $image == new Image;
+                    $image->id_product = $id_product;
+                    $image->path = $path;
+                    $image->save();
+                    return response()->json("Image added");
+                }
+                else if ($action == "remove") {
+                    $removed = Image::where(["id_product" => $id_product, "path" => $path])->delete();
+                    return response()->json("Image removed");
+                }
+                return response()->json("Some parameters are incorrect", 400);
+                break;
+            default:
+                return response()->json("Unauthorized", 401);
         }
     }
 
