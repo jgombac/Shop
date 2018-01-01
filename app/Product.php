@@ -28,6 +28,12 @@ class Product extends Model
         ]);
     }
 
+    public static function getProduct($id_product) {
+        $item = parent::where("id_product", $id_product)->first();
+        $item["images"] = $item->images; 
+        return $item;
+    }
+
     public static function getAll() {
         $items = parent::get();
         foreach ($items as $item) {

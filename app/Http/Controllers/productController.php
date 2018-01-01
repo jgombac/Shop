@@ -70,7 +70,7 @@ class productController extends BaseController
 
     public function getProduct(Request $req, $id) {
         $auth = Auth::find($req->header("auth"));
-        $product = Product::find($id);
+        $product = Product::getProduct($id);
         if(!$auth || $auth->user->type == "customer") {
             if (!$product) {
                 return response()->json("Cant view this product", 400);

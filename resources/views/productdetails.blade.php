@@ -19,7 +19,7 @@
                 @if(isset($type) && $type == "Seller") 
                 tmpl = $.templates("#productSellerTmpl");
                 @endif
-                var item = response.product;
+                var item = response;
                 item.images = response.images;
                 $(".js-productTable").append(tmpl.render(item));
                 $(".rate-area[data-ng-product='"+ item.id_product +"'] ."+Math.round(item.rating)+"-star").prop("checked", true);
