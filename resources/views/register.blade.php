@@ -83,10 +83,7 @@
 
             ng.api.register(data)
                 .done(function (response){
-                    console.log(response)
-                    if (response.message != undefined){
-                        alert(response.message);
-                    }
+                    window.location.href =  "/login"
                 })
                 .fail(function (error){
                     console.log(error);

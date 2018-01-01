@@ -61,13 +61,7 @@
                         console.log(data);
                         ng.api.updateUser(data)
                             .done(function (response) {
-                                if (response.code == 200) {
-                                    window.location.reload();
-                                }
-                                else {
-                                    alert(response.message);
-                                }
-                                console.log(response);
+                                window.location.reload();
                             })
                             .fail(function (error) {
                                 console.log(error);

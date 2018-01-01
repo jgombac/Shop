@@ -32,12 +32,7 @@
                         };
                         ng.api.rateProduct(data)
                             .done(function (response) {
-                                if (response.code == 200) {
-                                    window.location.reload();
-                                }
-                                else {
-                                    alert(response.message);
-                                }
+                                 window.location.reload();
                             })
                             .fail(function (error) {
                                 console.log(error);

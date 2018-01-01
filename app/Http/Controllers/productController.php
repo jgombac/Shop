@@ -17,6 +17,7 @@ use App\Order;
 use App\Auth;
 use App\User;
 use App\Image;
+use App\ProductRating;
 
 class productController extends BaseController
 {
@@ -54,6 +55,11 @@ class productController extends BaseController
                 if(!$product || !$product->active) {
                     return response()->json("Can't rate this product", 400);
                 }        
+                $id_user = $auth->user->id_user;
+                $insert = ProductRating::newRating($id_product, $id_user, $rating);
+                if (!$insert){
+                    return response()->json("You have already rated this product", 400);
+                }
                 $rate = Product::find($id_product)->rate($rating);     
                 return response()->json(Product::find(1));
                 break;

@@ -67,12 +67,7 @@
 
                 ng.api.updateCart(data)
                     .done(function (response) {
-                        if (response.code == 200) {
                             window.location.reload();
-                        }
-                        else {
-                            alert(response.message)
-                        }
                     })
                     .fail(function (error) {
                         console.log(error);
