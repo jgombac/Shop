@@ -35,7 +35,7 @@ class productController extends BaseController
                 return response()->json(Product::getAll());
                 break;
             default:
-                return response()->json("Unauthorized", 401);
+                return response()->json(Product::getAll());
         }
     }
 

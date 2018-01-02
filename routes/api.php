@@ -19,13 +19,14 @@ use Illuminate\Http\Request;
 
 Route::post("login", "userController@login");
 Route::post("register", "userController@register");
-Route::get("confirm", "userController@confirm");
+
 Route::get("profile", "userController@profile");
 Route::post("profile", "userController@updateProfile");
 Route::post("userupdate", "userController@updateUser");
 
 
 Route::get("testorder", "orderController@testOrder");
+Route::get("testemail", "userController@sendEmail");
 
 Route::get("products", "productController@products");
 Route::post("products/update", "productController@updateProduct");
@@ -48,4 +49,5 @@ Route::get("orders/{id}", "orderController@getOrder");
 Route::get('customers', "userController@customers");
 Route::get('sellers', "userController@sellers");
 
-Route::get("admin", "AdminController@index");
+Route::post("admin", "AdminController@login");
+Route::post("seller", "SellerController@login");

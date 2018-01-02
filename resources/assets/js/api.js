@@ -24,6 +24,7 @@ ng.api = {
         return ng.api.call("POST", "login", data);
     },
 
+
     register: function (data) {
         return ng.api.call("POST", "register", data);
     },

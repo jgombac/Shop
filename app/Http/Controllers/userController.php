@@ -26,13 +26,10 @@ class userController extends BaseController
             ->join('customers', 'users.id_user', '=', 'customers.id_user')
             ->select('users.id_user', 'users.first_name', 'users.last_name', 'users.email', 'customers.address', 'customers.street', 'customers.phone', "customers.id_postal", 'customers.active')
             ->get();
-            return json_encode($customers);
+            return response()->json($customers);
         }
         else {
-            return json_encode([
-                "code" => 403,
-                "message" => "Access denied."
-                ]);
+            return response()->json("Unauthorized", 403);
         }
     }
 
@@ -44,13 +41,10 @@ class userController extends BaseController
             ->join('sellers', 'users.id_user', '=', 'sellers.id_user')
             ->select('users.id_user', 'users.first_name', 'users.last_name', 'users.email', 'sellers.active')
             ->get();
-            return json_encode($customers);
+            return response()->json($customers);
         }
         else {
-            return json_encode([
-                "code" => 403,
-                "message" => "Access denied."
-                ]);
+            return response()->json("Unauthorized", 403);
         }
     }
 
@@ -63,10 +57,7 @@ class userController extends BaseController
         $email = $req->input("email");
         $exists = $this->checkEmailUpdate($email, $id_user);
         if($exists) {
-            return json_encode([
-                "code" => 400,
-                "message" => "E-mail already in use."
-                ]);
+            return response()->json("Email already in use", 400);
         }
         if ($type == "seller" || $type == "admin") {
             $user = DB::table("users")
@@ -87,10 +78,7 @@ class userController extends BaseController
 
             $postalcheck = DB::table("postals")->where("id_postal", $postal)->first();
             if (!$postalcheck) {
-                return json_encode([
-                    "code" => 400,
-                    "message" => "Invalid postal number"
-                    ]);
+                return response()->json("Invalid postal number", 400);
             }
 
             $customer = DB::table("customers")
@@ -102,10 +90,7 @@ class userController extends BaseController
                 "id_postal" => $postal,
                 'active' => $active, 
             ]);
-            return json_encode([
-                "code" => 200,
-                "message" => "Customer updated"
-                ]);
+            return response()->json("Customer updated");
         }
 
         else if ($type == "admin") {
@@ -116,15 +101,9 @@ class userController extends BaseController
             ->update([
                 'active' => $active, 
             ]);
-            return json_encode([
-                "code" => 200,
-                "message" => "Seller updated"
-                ]);
+            return response()->json("Seller updated");
         }
-        return json_encode([
-            "code" => 403,
-            "message" => "Unauthorized"
-            ]);
+        return response()->json("Unauthorized", 403);
     }
 
     public function profile(Request $req) {
@@ -151,10 +130,7 @@ class userController extends BaseController
 
             return json_encode($profile);
         }
-        return json_encode([
-            "code" => 403,
-            "message" => "Access denied."
-            ]);
+        return response()->json("Can not view this profile", 401);
     }
 
     public function updateProfile(Request $req) {
@@ -164,7 +140,7 @@ class userController extends BaseController
             $email = $req->input('email');   
             $exists = $this->checkEmailUpdate($email, $user->id_user);
             if($exists) {
-                return json_encode(["code" => 400, "message" => "E-mail already in use."]);
+                return response()->json("Email already in use", 400);
             }
             if (strlen($req->input('password')) > 4) {
                 $password = Hash::make($req->input('password'));
@@ -177,7 +153,7 @@ class userController extends BaseController
             $city = $req->input('city');
             $postalcheck = DB::table("postals")->where("id_postal", $id_postal)->where("city", "like", '%'.ucfirst($city).'%')->first();
             if (!$postalcheck) {
-                return json_encode(["code" => 400, "message" => "Postal code doesnt match the city or doesn't exist."]);
+                return response()->json("Postal code doesnt match the city or doesn't exist.", 400);
             }
             $firstName = $req->input('firstName');
             $lastName = $req->input("lastName");
@@ -200,9 +176,9 @@ class userController extends BaseController
                             "phone" => $phone,
                         ]);                
             }
-            return json_encode(["code" => 200, "message" => "Profile has been updated."]);
+            return response()->json("Profile has been updated");
         }
-        return json_encode(["code" => 401, "message" => "Unauthorized."]);
+        return response()->json("Can not update", 400);
     }
 
     public function login(Request $req) {
@@ -211,10 +187,7 @@ class userController extends BaseController
         $password = $req->input('password');
         $user = DB::table('users')->where('email', $email)->first();
         if (!$user) {
-            return json_encode([
-                "code" => 400,
-                "message" => "Email and/or password incorrect"
-            ]);
+            return response()->json("Email or password incorrect", 400);
         }
         $hashedpass = $user->password;
         if (Hash::check($password, $hashedpass)) {
@@ -231,25 +204,8 @@ class userController extends BaseController
                 $insertAuth = DB::table('auth')->insert(['id_user' => $user->id_user, 'code' => $auth, 'expire' => $expire]);
                 $finalAuth = $auth;
             }
-            if ($user->type == "admin"){
-                return json_encode(
-                    [
-                    'auth' => $finalAuth,
-                    'email' => $user->email, 
-                    'firstName' => $user->first_name,
-                    'lastName' => $user->last_name,
-                    'type' => $user->type
-                ]);
-            }
-            else if ($user->type == "seller") {
-                return json_encode(
-                    [
-                    'auth' => $finalAuth,
-                    'email' => $user->email, 
-                    'firstName' => $user->first_name,
-                    'lastName' => $user->last_name,
-                    'type' => $user->type
-                ]);
+            if ($user->type == "admin" || $user->type == "seller"){
+                return response()->json("Email or password incorrect", 400);
             }
             else {
                 $customer = DB::table('customers')//->where('id_user', $user->id_user)->->first();
@@ -282,19 +238,13 @@ class userController extends BaseController
                     ]);
                 }
                 else {
-                    return json_encode([
-                        "code" => 400,
-                        "message" => "Your account has not been confirmed yet or has been blocked."
-                    ]);
+                    return response()->json("Your account has not been confirmed yet or has been blocked", 401);
                 }
             }   
             
 
         }
-        return json_encode([
-            "message" => 400,
-            "message" => "Email and/or password incorrect"
-        ]);
+        return response()->json("Email or password incorrect", 400);
     }
 
 
@@ -307,7 +257,7 @@ class userController extends BaseController
                 $email = $req->input('email');   
                 $exists = $this->checkEmail($email);
                 if($exists) {
-                    return json_encode(["message" => "E-mail already in use."]);
+                    return response()->json("Email already in use", 400);
                 }
                 $password = Hash::make($req->input('password'));
                 $firstName = $req->input('firstName');
@@ -323,10 +273,7 @@ class userController extends BaseController
                         ]
                     );
                 } catch (QueryException $ex) {
-                    return json_encode([
-                        "code" => 500,
-                        "message" => "An error occured"
-                        ]);
+                    return response()->json("Error", 500);
                 }
                 $seller = DB::table('sellers')->insert(
                     [
@@ -335,15 +282,9 @@ class userController extends BaseController
                     ]
                 );
                 if (!$userId || !$seller) {
-                    return json_encode([
-                        "code" => 400,
-                        "message" => "Registration failed."
-                    ]);
+                    return response()->json("Registration failed", 400);
                 }
-                return json_encode([
-                    "code" => 200,
-                    "message" => "Registration successful."
-                ]);
+                return response()->json("Registration successful.");
             }
 
         }
@@ -351,10 +292,7 @@ class userController extends BaseController
         $email = $req->input('email');   
         $exists = $this->checkEmail($email);
         if($exists) {
-            return json_encode([
-                "code" => 400,
-                "message" => "E-mail already in use."
-                ]);
+            return response()->json("Email already in use", 400);
         }
         $password = Hash::make($req->input('password'));
         $firstName = $req->input('firstName');
@@ -368,10 +306,7 @@ class userController extends BaseController
         //postal check
         $postalcheck = DB::table("postals")->where("id_postal", $postal)->where("city", "like", $city)->first();
         if (!$postalcheck) {
-            return json_encode([ 
-                "code" => 400,
-                "message" => "Postal code doesnt match the city or doesn't exist."
-                ]);
+            return response()->json("Postal code doesnt match the city or doesn't exist.", 400);
         }
 
         $validation = Hash::make($email + $password);
@@ -386,7 +321,6 @@ class userController extends BaseController
             ]
         );
 
-
         $customer = DB::table('customers')->insert(
             [
                 'id_user' => $userId,
@@ -398,17 +332,11 @@ class userController extends BaseController
             ]
         );
         if (!$userId || !$customer) {
-            return json_encode([
-                "code" => 400,
-                "message" => "Registration failed."
-            ]);
+            return response()->json("Registration failed", 400);
         }
         $valid = DB::table('validations')->insert(['id_user' => $userId, 'validation_code' => $validation, 'validated' => false]);
-        //$emailSent = $this->sendEmail($email, $validation);
-        return json_encode([
-            "code" => 200,
-            "message" => "Registration successful."
-        ]);
+        $emailSent = $this->sendEmail($email, $validation);
+        return response()->json("Registration successful");
     }
 
     public function checkEmail($email) {
@@ -447,6 +375,13 @@ class userController extends BaseController
             return view('activateaccount', ['message' => 'Activation successful.']);
         }
         return view('activateaccount', ['message' => 'Invalid token.']);;        
+    }
+
+    public function sendEmail($email, $confirmation) {
+        Mail::send('email.confirm', array('confirmation' => "https://dev.dovigom.com/confirm/".$confirmation), function($message) use ($email)
+        {
+            $message->to($email)->subject('Aktivacija računa');
+        });
     }
 
 }

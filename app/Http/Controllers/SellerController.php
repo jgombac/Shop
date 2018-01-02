@@ -13,13 +13,10 @@ use Illuminate\Support\Facades\Mail;
 use Carbon\Carbon;
 use Illuminate\Database\QueryException;
 
-class AdminController extends Controller
+class SellerController extends Controller
 {
 
 
-    public function index() {
-        return "i am admin";
-    }
 
     public function login(Request $req) {
 
@@ -44,14 +41,14 @@ class AdminController extends Controller
                 $insertAuth = DB::table('auth')->insert(['id_user' => $user->id_user, 'code' => $auth, 'expire' => $expire]);
                 $finalAuth = $auth;
             }
-            if ($user->type == "admin"){
+            if ($user->type == "seller"){
                 return response()->json(
                     [
-                    'auth' => $finalAuth,
-                    'email' => $user->email, 
-                    'firstName' => $user->first_name,
-                    'lastName' => $user->last_name,
-                    'type' => $user->type
+                        'auth' => $finalAuth,
+                        'email' => $user->email, 
+                        'firstName' => $user->first_name,
+                        'lastName' => $user->last_name,
+                        'type' => $user->type
                 ]);
             }
            

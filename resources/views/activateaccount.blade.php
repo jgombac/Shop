@@ -13,8 +13,14 @@
 		text-align: center;
 	}
 
-	h2{
+	body{
 		font-family: sans-serif;
+	}
+
+	a {
+		text-decoration: none;
+		padding: 10px;
+		font-size: 18px;
 	}
 
 </style>
@@ -23,6 +29,10 @@
 
 <div>
 	<h2>{{ $message }}</h2>
+	<div>
+		<span><a href="/">Home</a></span>
+		<span><a href="/login">Login</a></span>
+	</div>
 </div>
 
 </body>

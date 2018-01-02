@@ -135,3 +135,27 @@ Route::get("/cart", function () {
     return redirect()->route("/");
 
 });
+
+Route::get("/admin", function () {
+    if (isset($_COOKIE["auth"])){
+        $auth = $_COOKIE["auth"];
+        $type = (new authController)->getUserType($auth);
+        if ($type == "admin") {
+            return redirect("/");
+        }
+    }
+   return view("adminlogin");
+});
+
+Route::get("/seller", function () {
+    if (isset($_COOKIE["auth"])){
+        $auth = $_COOKIE["auth"];
+        $type = (new authController)->getUserType($auth);
+        if ($type == "seller") {
+            return redirect("/");
+        }
+    }
+   return view("sellerlogin");
+ });
+
+ Route::get("confirm/{validation}", "userController@confirm");
