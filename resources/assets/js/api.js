@@ -20,6 +20,27 @@ ng.api = {
         });
     },
 
+    fileUpload: function (url, data, authenticate) {
+
+        var headers = {};
+        if (authenticate != undefined && authenticate) {
+            headers["auth"] = ng.cookies.get("auth");
+        }
+
+        return $.ajax({
+            dataType: "json",
+            type: "POST",
+            url: "/api/" + url,
+            data: data,
+            headers: headers,
+            cache: false,
+            contentType: false,
+            processData: false,   
+            async: true,
+            cache: false,
+        });
+    },
+
     login: function (data) {
         return ng.api.call("POST", "login", data);
     },
@@ -55,6 +76,18 @@ ng.api = {
 
     updateCart: function (data) {
         return ng.api.call("POST", "cart/update", data, true);
+    },
+
+    removeImage: function (data) {
+        return ng.api.call("POST", "products/image", data, true);
+    },
+
+    addImage: function (data) {
+        return ng.api.fileUpload("products/image", data, true);
+    },
+
+    addProduct: function (data) {
+        return ng.api.fileUpload("products/add", data, true);
     },
 
     getLatestOrder: function () {

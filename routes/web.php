@@ -54,6 +54,16 @@ Route::get("/products", function () {
     return view("products", ["type" => "anon"]);
 });
 
+Route::get("/products/add", function () {
+    if (isset($_COOKIE["auth"])){
+        $auth = $_COOKIE["auth"];
+        $type = (new authController)->getUserType($auth);
+        if ($type == "seller")
+            return view("addproduct", ["type" => ucfirst($type)]);
+    }
+    return redirect("/");
+});
+
 Route::get("/products/{id}", function ($id) {
     if (isset($_COOKIE["auth"])){
         $auth = $_COOKIE["auth"];
@@ -72,7 +82,7 @@ Route::get("/sellers", function () {
             return view("sellers", ['type' => ucfirst($type)]);
         }
     }
-    return view("welcome");
+    return redirect("/");
 });
 
 Route::get("/customers", function () {
@@ -83,7 +93,7 @@ Route::get("/customers", function () {
             return view("customers", ['type' => ucfirst($type)]);
         }
     }
-    return redirect()->route("/");
+    return redirect("/");
 });
 
 Route::get("/orders", function () {
@@ -94,7 +104,7 @@ Route::get("/orders", function () {
             return view("orders", ['type' => ucfirst($type)]);
         }
     }
-    return redirect()->route("/");
+    return redirect("/");
 });
 
 Route::get("/orders/{id}", function ($id) {
@@ -106,7 +116,7 @@ Route::get("/orders/{id}", function ($id) {
             return view("orderdetails", ['type' => ucfirst($type), "order" => $order]);
         }
     }
-    return redirect()->route("/");
+    return redirect("/");
 });
 
 Route::get("/profile", function () {
@@ -120,7 +130,7 @@ Route::get("/profile", function () {
             return view("profile", ['type' => ucfirst($type)]);
         }
     }
-    return redirect()->route("/");
+    return redirect("/");
 
 });
 
@@ -132,7 +142,7 @@ Route::get("/cart", function () {
             return view("cart", ['type' => ucfirst($type)]);
         }
     }
-    return redirect()->route("/");
+    return redirect("/");
 
 });
 

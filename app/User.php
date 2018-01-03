@@ -10,7 +10,8 @@ class User extends Model
     protected $table = 'users';
     protected $primaryKey = "id_user";
     protected $hidden = ['password'];
-
+    protected $fillable = ['email', 'password', "first_name", "last_name"];
+    public $timestamps = false;
 
     public function customer() {
         return $this->hasOne("App\Customer", "id_user");

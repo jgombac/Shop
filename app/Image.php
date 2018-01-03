@@ -9,6 +9,8 @@ class Image extends Model
 
     protected $table = 'images';
     protected $primaryKey = "id_image";
+    public $timestamps = false;
+
 
     protected $hidden = ["id_image", "id_product"];
 

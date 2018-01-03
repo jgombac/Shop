@@ -1,6 +1,9 @@
 @extends('layouts.layout')
 
-@section('content')
+@section('content')   
+@if(isset($type) && $type == "Seller")
+<a href="/products/add" class="btn btn-primary">Add new product</a>
+@endif
 <div class="container">
     <div class="js-productTable">
     </div>
@@ -87,13 +90,7 @@
 
             ng.api.updateProduct(data)
                 .done(function (response) {
-                    if (response.code == 200) {
-                        window.location.reload();
-                    }
-                    else {
-                        alert(response.message);
-                    }
-
+                    window.location.reload();
                 })
                 .fail( function (error) {
                     console.log(error);
@@ -101,6 +98,44 @@
 
 
         });
+
+        $(".js-productTable").on("click", ".js-removeImage", function () {
+                    var context = $(this).closest(".panel[data-ng-product]");
+                    var data = {
+                        "action": "remove",
+                        "path": $(this).attr("data-ng-img"),
+                        "id_product": parseInt($(context).attr("data-ng-product")),
+                    }
+
+                    ng.api.removeImage(data)
+                        .done(function (response) {
+                            window.location.reload();
+                        })
+                        .fail(function (error) {
+                            console.log(error);
+                        });
+
+                })
+
+                $(".js-productTable").on("click", ".js-addImage", function () {
+
+                    var context = $(this).closest(".panel[data-ng-product]");
+                    
+                    var form = new FormData();
+                    form.append("photo", $(this).closest(".form").find("input[type='file']").prop("files")[0]);
+                    form.append("action", "add");
+                    form.append("path",  $(this).closest(".form").find(".js-filename").val());
+                    form.append("id_product", parseInt($(context).attr("data-ng-product")));
+                    
+                    ng.api.addImage(form)
+                        .done(function (response) {
+                            window.location.reload();
+                        })
+                        .fail(function (error) {
+                            console.log(error);
+                        });
+
+                });
         @endif
     });
 </script>

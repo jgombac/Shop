@@ -4,10 +4,13 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Admin extends Model
+class Seller extends Model
 {
-    protected $table = 'administrators';
+
+    protected $table = 'sellers';
     protected $primaryKey = "id_user";
     public $timestamps = false;
+    protected $fillable = ["active"];
+
 
 }

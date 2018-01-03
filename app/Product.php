@@ -10,7 +10,7 @@ class Product extends Model
     protected $table = 'products';
     protected $primaryKey = "id_product";
     public $timestamps = false;
-    protected $fillable = ["name", "price", "active"];
+    protected $fillable = ["name", "price", "active", "num_ratings", "rating"];
 
 
     public function rate($rating) {

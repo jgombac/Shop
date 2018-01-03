@@ -40,8 +40,15 @@
     <div class="panel row" data-ng-product="{{:id_product}}">
         <div class="col-xs-12 col-md-8">
             {{for images}}
-            <img src="/productImages/{{:path}}" alt="Image">
+            <div style="display:inline-block">
+                    <img src="/images/{{:path}}"alt="Image">
+                    <input type="button" class="btn btn-danger js-removeImage"  data-ng-img="{{:path}}" value="Remove Image">
+            </div>
             {{/for}}
+            <form class="form" method="POST" enctype="multipart/form-data">
+                <input type="file"/>
+                <input type="button" class="btn btn-primary js-addImage" data-gom-form="submit" value="Upload" />
+            </form>
         </div>
         <div class="col-xs-12 col-md-4">
             <div class="form-group">
@@ -116,6 +123,8 @@
             <td><input disabled class="js-firstName" type="text" value="{{:first_name}}" class="form-control"></td>
             <td><input disabled class="js-lastName" type="text" value="{{:last_name}}" class="form-control"></td>
             <td><input disabled class="js-email" type="text" value="{{:email}}" class="form-control"></td>
+            <td><input disabled class="js-password" type="password" class="form-control"></td>
+            <td><input disabled class="js-repeatPassword" type="password" class="form-control"></td>
             <td><input disabled class="js-active" type="checkbox" name="Active" {{if active == 1}} checked{{/if}}></td>
             <td>
                 <span class="js-toggleChange glyphicon glyphicon-pencil"></span>
@@ -133,6 +142,8 @@
             <td><input disabled class="js-firstName" type="text" value="{{:first_name}}" class="form-control"></td>
             <td><input disabled class="js-lastName" type="text" value="{{:last_name}}" class="form-control"></td>
             <td><input disabled class="js-email" type="text" value="{{:email}}" class="form-control"></td>
+            <td><input disabled class="js-password" type="password" class="form-control"></td>
+            <td><input disabled class="js-repeatPassword" type="password" class="form-control"></td>
             <td><input disabled class="js-address" type="text" value="{{:address}}" class="form-control"></td>
             <td><input disabled class="js-street" type="text" value="{{:street}}" class="form-control"></td>
             <td><input disabled class="js-postal" type="text" value="{{:id_postal}}" class="form-control"></td>

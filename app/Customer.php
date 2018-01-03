@@ -9,7 +9,8 @@ class Customer extends Model
 
     protected $table = 'customers';
     protected $primaryKey = "id_user";
-    protected $hidden = ["id_user"];
+    public $timestamps = false;
+    protected $fillable = ["address", "street", "id_postal", "phone", "active"];
 
 
 }

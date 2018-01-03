@@ -71,6 +71,10 @@ class orderController extends BaseController
                 $id_order = $req->input("id_order");
                 $processed = $req->input("processed");
                 $status = $req->input("status");
+                $verified = $this->verifyFields(["processed" => $processed, "status" => $status]);
+                if ($verified != 1) {
+                    return response()->json("Bad input: ".$verified, 400);
+                }
                 $order = Order::where("id_order", $id_order)->update([
                     "processed" => $processed,
                     "status" => $status,
@@ -233,7 +237,33 @@ class orderController extends BaseController
     }
 
 
+    public function verifyFields($fields) {
 
+        foreach ($fields as $key => $val) {
+            if($val == null){
+                return $key;
+            }
+            switch ($key) {
+                case "processed":
+                    if ($val == 0 || $val == 1) {
+                        continue;
+                    }
+                    else {
+                        return $key;
+                    }
+                    break;
+                case "status":
+                    if ($val == 0 || $val == 1 || $val == -1) {
+                        continue;
+                    }
+                    else {
+                        return $key;
+                    }
+                    break;
+            }
+        }
+        return true;
+    
 
 
 }

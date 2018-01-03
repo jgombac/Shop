@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 use Illuminate\Database\QueryException;
+use File;
 
 use App\Product;
 use App\Order;
@@ -96,8 +97,58 @@ class productController extends BaseController
                 if (!isset($id_product) || !isset($name)  || !isset($price)  || !isset($active)) {
                     return response()->json("Some parameters are missing", 400);
                 }
+                $verified = $this->verifyFields(["active" => $active, "name" => $name, "price" => $price]);
+                if ($verified != 1){
+                    return response()->json("Bad input: ".$verified, 400);
+                }  
                 $product = Product::find($id_product)->updateProduct($name, $price, $active);
                 return response()->json(Product::find($id_product));
+                break;
+            default:
+                return response()->json("Unauthorized", 401);
+        }
+    }
+
+    public function addProduct(Request $req) {
+        $auth = Auth::find($req->header("auth"));
+        if(!$auth) {
+            return response()->json("Unauthorized", 401);
+        }
+        switch ($auth->user->type) {
+            case "seller":
+
+                $photo = $req->file("image");
+                $path = $photo->getClientOriginalName();//$req->input("path");
+                $name = $req->input("name");
+                $price = $req->input("price");
+                $active = $req->input("active");
+                if (!isset($path) || !isset($name)  || !isset($price)  || !isset($active) || !isset($photo)) {
+                    return response()->json("Some parameters are missing", 400);
+                }
+                $verified = $this->verifyFields(["path" => $path, "active" => $active, "image" => $photo, "name" => $name, "price" => $price]);
+                if ($verified != 1){
+                    return response()->json("Bad input: ".$verified, 400);
+                }  
+                $imgfile = $photo->move(public_path("/images"), $path);
+                $product = new Product;
+                $product->name = $name;
+                $product->price = $price;
+                if ($active === "true"){
+                    $product->active = 1;
+                }
+                else {
+                    $product->active = 0;
+                }
+                $product->num_ratings = 0;
+                $product->rating = 0;
+                $product->save();
+                $id_product = $product->id_product;
+                $image = new Image;
+                $image->id_product = $id_product;
+                $image->path = $path;
+                $image->save();
+
+                return response()->json("Product added");
                 break;
             default:
                 return response()->json("Unauthorized", 401);
@@ -117,17 +168,29 @@ class productController extends BaseController
                 $id_product = $req->input("id_product");
                 $path = $req->input("path");
                 $action = $req->input("action");
-                if ($id_product || $path || $action) {
+                if ($id_product == null || $path == null || $action == null) {
                     return response()->json("Some parameters are missing", 400);
                 }
                 if ($action == "add") {
-                    $image == new Image;
+                    $imgfile = $req->file("photo");
+                    $path = $imgfile->getClientOriginalName();//$req->input("path");
+                    $verified = $this->verifyFields(["path" => $path, "action" => $action, "image" => $imgfile]);
+                    if ($verified != 1){
+                        return response()->json("Bad input: ".$verified, 400);
+                    }  
+                    $imgfile->move(public_path("/images"), $path);
+                    $image = new Image;
                     $image->id_product = $id_product;
                     $image->path = $path;
                     $image->save();
                     return response()->json("Image added");
                 }
                 else if ($action == "remove") {
+                    try{
+                        unlink(public_path('images/'.$path));
+                    }catch (\Exception $e) {
+                        
+                    }
                     $removed = Image::where(["id_product" => $id_product, "path" => $path])->delete();
                     return response()->json("Image removed");
                 }
@@ -138,6 +201,54 @@ class productController extends BaseController
         }
     }
 
+
+    public function verifyFields($fields) {
+
+        foreach ($fields as $key => $val) {
+            if($val == null){
+                return $key;
+            }
+            switch ($key) {
+                case "action":
+                    if ($val == "add" || $val == "remove") {
+                        continue;
+                    }
+                    else {
+                        return $key;
+                    }
+                    break;
+                case "image":
+                    if(substr($val->getMimeType(), 0, 5) != 'image') {
+                        return $key;
+                    }
+                    break;
+                case "name":
+                    if (strlen($val) < 3) {
+                        return $key;
+                    }
+                    break;
+                case "path":
+                    if (!preg_match("/^[a-zA-Z0-9\_\-]+\.(jpg|png|pneg|jpeg)$/", $val)) {
+                        return $key;
+                    }  
+                    break;
+                case "price":
+                    if (!preg_match("/^\d+(\,|\.)?\d+?$/", $val)) {
+                        return $key;
+                    }  
+                    break;
+                case "active":
+                    if ($val != 0 || $val != 1 || $val != "true" || $val != "false") {
+                        continue;
+                    } 
+                    else{
+                        return $key;
+                    }
+                    break;
+            }
+        }
+        return true;
+    }
 
 
 

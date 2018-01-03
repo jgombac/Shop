@@ -29,8 +29,10 @@ Route::get("testorder", "orderController@testOrder");
 Route::get("testemail", "userController@sendEmail");
 
 Route::get("products", "productController@products");
+Route::post("products/add", "productController@addProduct");
 Route::post("products/update", "productController@updateProduct");
 Route::post("products/rate", "productController@rateProduct");
+Route::post("products/image", "productController@manageImage");
 Route::get("products/{id}", "productController@getProduct");
 
 

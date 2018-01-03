@@ -8,6 +8,8 @@
             <th>First name</th>
             <th>Last name</th>
             <th>Email</th>
+            <th>Password</th>
+            <th>Repeat password</th>
             <th>Address</th>
             <th>Street</th>
             <th>Postal</th>
@@ -57,6 +59,12 @@
                             "street": $(".js-street", context).val(),
                             "postal": parseInt($(".js-postal", context).val()),
                             "phone": $(".js-phone", context).val(),
+                        }
+                        var pass = $(".js-password", context).val();
+                        var repeatPass = $(".js-repeatPassword", context).val();
+                        if (pass.length > 4 && repeatPass.length > 4) {
+                            data["password"] = pass;
+                            data["repeatPassword"] = repeatPass;
                         }
                         console.log(data);
                         ng.api.updateUser(data)

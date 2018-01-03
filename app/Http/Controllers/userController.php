@@ -15,6 +15,10 @@ use Carbon\Carbon;
 use Illuminate\Database\QueryException;
 //use \App\Mail\PotrditevRacuna;
 
+use App\User;
+use App\Customer;
+use App\Seller;
+
 class userController extends BaseController
 {
 
@@ -55,18 +59,32 @@ class userController extends BaseController
         $first_name = $req->input("first_name");
         $last_name = $req->input("last_name");
         $email = $req->input("email");
+        $password = $req->input("password");
+        $repeatPassword = $req->input("repeatPassword");
         $exists = $this->checkEmailUpdate($email, $id_user);
         if($exists) {
             return response()->json("Email already in use", 400);
         }
+        $verified = $this->verifyFields(["first_name" => $first_name, "last_name" => $last_name, "email" => $email]);
+        if ($verified != 1){
+            return response()->json("Bad input: ".$verified, 400);
+        }
         if ($type == "seller" || $type == "admin") {
-            $user = DB::table("users")
-                ->where("id_user", $id_user)
-                ->update([
+            $user = User::find($id_user)->update([
                     'email' => $email, 
                     'first_name' => $first_name,
                     'last_name' => $last_name,
                 ]);
+            if($password != null) {
+                $verified = $this->verifyFields(["password" => $password]);
+                if ($verified != 1){
+                    return response()->json("Bad input: ".$verified, 400);
+                }
+                $hashed =  $password = Hash::make($password);
+                User::find($id_user)->update([
+                    "password" => $hashed
+                ]);
+            }
         }
        
         if ($type == "seller") {
@@ -75,15 +93,17 @@ class userController extends BaseController
             $phone = $req->input("phone");
             $postal = $req->input("postal");
             $active = $req->input("active");
+            $verified = $this->verifyFields(["address" => $address, "street" => $street, "phone" => $phone, "postal" => $postal, "active" => $active]);
+            if ($verified != 1){
+                return response()->json("Bad input: ".$verified, 400);
+            }
 
             $postalcheck = DB::table("postals")->where("id_postal", $postal)->first();
             if (!$postalcheck) {
                 return response()->json("Invalid postal number", 400);
             }
 
-            $customer = DB::table("customers")
-            ->where("id_user", $id_user)
-            ->update([
+            $customer = Customer::find($id_user)->update([
                 'address' => $address, 
                 'street' => $street,
                 'phone' => $phone,
@@ -95,10 +115,11 @@ class userController extends BaseController
 
         else if ($type == "admin") {
             $active = $req->input("active");
-
-            $seller = DB::table("sellers")
-            ->where("id_user", $id_user)
-            ->update([
+            $verified = $this->verifyFields(["active" => $active]);
+            if ($verified != 1){
+                return response()->json("Bad input: ".$verified, 400);
+            }
+            $seller = Seller::find($id_user)->update([
                 'active' => $active, 
             ]);
             return response()->json("Seller updated");
@@ -143,20 +164,24 @@ class userController extends BaseController
                 return response()->json("Email already in use", 400);
             }
             if (strlen($req->input('password')) > 4) {
-                $password = Hash::make($req->input('password'));
+                $password = $req->input('password');
+                $verified = $this->verifyFields(["password" => $password]);
+                if ($verified != 1){
+                    return response()->json("Bad input: ".$verified, 400);
+                }
+                $hashed = Hash::make($password);
                 $updatedUser = DB::table("users")->where("id_user", $user->id_user)
                 ->update([
-                    'password' => $password,
+                    'password' => $hashed,
                 ]);
             }
-            $id_postal = $req->input('postal');
-            $city = $req->input('city');
-            $postalcheck = DB::table("postals")->where("id_postal", $id_postal)->where("city", "like", '%'.ucfirst($city).'%')->first();
-            if (!$postalcheck) {
-                return response()->json("Postal code doesnt match the city or doesn't exist.", 400);
-            }
+
             $firstName = $req->input('firstName');
             $lastName = $req->input("lastName");
+            $verified = $this->verifyFields(["first_name" => $firstName, "last_name" => $lastName, "email" => $email]);
+            if ($verified != 1){
+                return response()->json("Bad input: ".$verified, 400);
+            }
             $updatedUser = DB::table("users")->where("id_user", $user->id_user)
                         ->update([
                             'email' => $email, 
@@ -165,9 +190,19 @@ class userController extends BaseController
                         ]);
 
             if ($user->type == "customer") {
+                $id_postal = $req->input('postal');
+                $city = $req->input('city');
+                $postalcheck = DB::table("postals")->where("id_postal", $id_postal)->where("city", "like", '%'.ucfirst($city).'%')->first();
+                if (!$postalcheck) {
+                    return response()->json("Postal code doesnt match the city or doesn't exist.", 400);
+                }
                 $address = $req->input('address');
                 $street = $req->input('street');
                 $phone = $req->input('phone');
+                $verified = $this->verifyFields(["address" => $address, "street" => $street, "phone" => $phone, "postal" => $id_postal, "city" => $city]);
+                if ($verified != 1){
+                    return response()->json("Bad input: ".$verified, 400);
+                }
                 $customer = DB::table("customers")->where("id_user", $user->id_user)
                         ->update([
                             "address" => $address,
@@ -185,6 +220,10 @@ class userController extends BaseController
 
         $email = $req->input('email');
         $password = $req->input('password');
+        $verified = $this->verifyFields(["email" => $email, "password" => $password]);
+        if ($verified != 1){
+            return response()->json("Bad input: ".$verified, 400);
+        }
         $user = DB::table('users')->where('email', $email)->first();
         if (!$user) {
             return response()->json("Email or password incorrect", 400);
@@ -262,7 +301,10 @@ class userController extends BaseController
                 $password = Hash::make($req->input('password'));
                 $firstName = $req->input('firstName');
                 $lastName = $req->input("lastName");
-
+                $verified = $this->verifyFields(["email" => $email, "password" => $password, "first_name" => $firstName, "last_name" => $lastName]);
+                if ($verified != 1){
+                    return response()->json("Bad input: ".$verified, 400);
+                }               
                 try {
                     $userId = DB::table('users')->insertGetId(
                         ['email' => $email, 
@@ -294,7 +336,7 @@ class userController extends BaseController
         if($exists) {
             return response()->json("Email already in use", 400);
         }
-        $password = Hash::make($req->input('password'));
+        $password = $req->input("password");//Hash::make($req->input('password'));
         $firstName = $req->input('firstName');
         $lastName = $req->input("lastName");
         $address = $req->input('address');
@@ -302,7 +344,11 @@ class userController extends BaseController
         $postal = $req->input("postal");
         $city = $req->input("city");
         $phone = $req->input('phone');
-
+        $verified = $this->verifyFields(["email" => $email, "password" => $password, "first_name" => $firstName, "last_name" => $lastName, 
+        "address" => $address, "street" => $street, "postal" => $postal, "city" => $city, "phone" => $phone]);
+        if ($verified != 1){
+            return response()->json("Bad input: ".$verified, 400);
+        }  
         //postal check
         $postalcheck = DB::table("postals")->where("id_postal", $postal)->where("city", "like", $city)->first();
         if (!$postalcheck) {
@@ -311,10 +357,10 @@ class userController extends BaseController
 
         $validation = Hash::make($email + $password);
         $validation = str_replace('/', '_', $validation);
-
+        $hashed = Hash::make($password);
         $userId = DB::table('users')->insertGetId(
             ['email' => $email, 
-            'password' => $password, 
+            'password' => $hashed, 
             'first_name' => $firstName, 
             'last_name' => $lastName, 
             'type' => 'customer',
@@ -382,6 +428,71 @@ class userController extends BaseController
         {
             $message->to($email)->subject('Aktivacija računa');
         });
+    }
+
+    public function verifyFields($fields) {
+
+        foreach ($fields as $key => $val) {
+            if($val == null){
+                return $key;
+            }
+            switch ($key) {
+                case "email":
+                    if (!filter_var($val, FILTER_VALIDATE_EMAIL)) {
+                        return $key;
+                    }
+                    break;
+                case "password":
+                    if (strlen($val) < 6) {
+                        return $key;
+                    }
+                    break;
+                case "active":
+                    if ($val == 0 || $val == 1 || $val == "true" || $val == "false") {
+                        continue;
+                    } 
+                    else{
+                        return $key;
+                    }
+                    break;
+                case "first_name":
+                    if (!preg_match("/^\s*([a-zA-Z]+\s*){1,4}$/", $val)) {
+                        return $key;
+                    }  
+                    break;
+                case "last_name":
+                    if (!preg_match("/^\s*([a-zA-Z]+\s*){1,4}$/", $val)) {
+                        return $key;
+                    }  
+                    break;
+                case "address":
+                    if (!preg_match("/^\s*([a-zA-Z]+\s*){1,4}$/", $val)) {
+                        return $key;
+                    }  
+                    break;
+                case "street":
+                    if (!preg_match("/^[a-zA-Z0-9]{4,10}$/", $val)) {
+                        return $key;
+                    } 
+                    break;
+                case "postal":
+                    if (!preg_match("/^\d+$/", $val)) {
+                        return $key;
+                    }    
+                break;
+                case "city":
+                    if (!preg_match("/^\s*([a-zA-Z]+\s*){1,4}$/", $val)) {
+                        return $key;
+                    } 
+                    break;
+                case "phone":
+                    if (!preg_match("/^([0-9]{2,3}|\(?\+{0,1}[0-9]{2,3}\)?)\s?[0-9]{2,3}\s?[0-9]{2,3}\s?[0-9]{0,3}$/", $val)) {
+                        return $key;
+                    }                
+                    break;
+            }
+        }
+        return true;
     }
 
 }
