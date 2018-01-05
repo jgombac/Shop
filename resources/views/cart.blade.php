@@ -82,12 +82,7 @@
 
                 ng.api.finishOrder(data)
                     .done(function (response) {
-                        if (response.code == 200) {
                             window.location.pathname = "/products";
-                        }
-                        else {
-                            alert(response.message)
-                        }
                     })
                     .fail(function (error) {
                         console.log(error);

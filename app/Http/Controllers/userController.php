@@ -61,14 +61,19 @@ class userController extends BaseController
         $email = $req->input("email");
         $password = $req->input("password");
         $repeatPassword = $req->input("repeatPassword");
+
         $exists = $this->checkEmailUpdate($email, $id_user);
         if($exists) {
             return response()->json("Email already in use", 400);
         }
+
         $verified = $this->verifyFields(["first_name" => $first_name, "last_name" => $last_name, "email" => $email]);
         if ($verified != 1){
             return response()->json("Bad input: ".$verified, 400);
         }
+        $user_type = User::find($id_user)->type;
+
+
         if ($type == "seller" || $type == "admin") {
             $user = User::find($id_user)->update([
                     'email' => $email, 
@@ -76,11 +81,11 @@ class userController extends BaseController
                     'last_name' => $last_name,
                 ]);
             if($password != null) {
-                $verified = $this->verifyFields(["password" => $password]);
+                $verified = $this->verifyFields(["password" => $password, "repeat_pass" => $repeatPassword]);
                 if ($verified != 1){
                     return response()->json("Bad input: ".$verified, 400);
                 }
-                $hashed =  $password = Hash::make($password);
+                $hashed = Hash::make($password);
                 User::find($id_user)->update([
                     "password" => $hashed
                 ]);
@@ -165,7 +170,8 @@ class userController extends BaseController
             }
             if (strlen($req->input('password')) > 4) {
                 $password = $req->input('password');
-                $verified = $this->verifyFields(["password" => $password]);
+                $repeatPassword = $req->input('repeatPassword');
+                $verified = $this->verifyFields(["password" => $password, "repeat_pass" => $repeatPassword]);
                 if ($verified != 1){
                     return response()->json("Bad input: ".$verified, 400);
                 }
@@ -336,7 +342,8 @@ class userController extends BaseController
         if($exists) {
             return response()->json("Email already in use", 400);
         }
-        $password = $req->input("password");//Hash::make($req->input('password'));
+        $password = $req->input("password");
+        $repeatPassword = $req->input("repeatPassword");
         $firstName = $req->input('firstName');
         $lastName = $req->input("lastName");
         $address = $req->input('address');
@@ -344,7 +351,7 @@ class userController extends BaseController
         $postal = $req->input("postal");
         $city = $req->input("city");
         $phone = $req->input('phone');
-        $verified = $this->verifyFields(["email" => $email, "password" => $password, "first_name" => $firstName, "last_name" => $lastName, 
+        $verified = $this->verifyFields(["email" => $email, "password" => $password, "repeat_pass" => $repeatPassword, "first_name" => $firstName, "last_name" => $lastName, 
         "address" => $address, "street" => $street, "postal" => $postal, "city" => $city, "phone" => $phone]);
         if ($verified != 1){
             return response()->json("Bad input: ".$verified, 400);
@@ -355,7 +362,7 @@ class userController extends BaseController
             return response()->json("Postal code doesnt match the city or doesn't exist.", 400);
         }
 
-        $validation = Hash::make($email + $password);
+        $validation = Hash::make($email . $password);
         $validation = str_replace('/', '_', $validation);
         $hashed = Hash::make($password);
         $userId = DB::table('users')->insertGetId(
@@ -447,6 +454,11 @@ class userController extends BaseController
                         return $key;
                     }
                     break;
+                case "repeat_pass":
+                    if ($fields["password"] != $val) {
+                        return $key;
+                    }
+                    break;
                 case "active":
                     if ($val == 0 || $val == 1 || $val == "true" || $val == "false") {
                         continue;
@@ -471,7 +483,7 @@ class userController extends BaseController
                     }  
                     break;
                 case "street":
-                    if (!preg_match("/^[a-zA-Z0-9]{4,10}$/", $val)) {
+                    if (!preg_match("/^[a-zA-Z0-9]{1,10}$/", $val)) {
                         return $key;
                     } 
                     break;

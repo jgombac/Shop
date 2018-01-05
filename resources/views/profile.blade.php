@@ -12,6 +12,10 @@
         <input type="text" id="password" class="form-control">
     </div>
     <div class="form-group">
+        <label for="repeat-password">Repeat password</label>
+        <input type="text" id="repeat-password" class="form-control">
+    </div>
+    <div class="form-group">
         <label for="first-name">First name</label>
         <input type="text" id="first-name" class="form-control">
     </div>
@@ -49,8 +53,9 @@
                 "firstName": $("#first-name").val(),
                 "lastName": $("#last-name").val(),
             };
-            if($("#password").val().length > 4) {
+            if($("#password").val().length > 5) {
                 data["password"] = $("#password").val();
+                data["repeatPassword"] = $("#repeat-password").val();
             }
 
             ng.api.updateProfile(data)

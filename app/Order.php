@@ -113,7 +113,7 @@ class Order extends Model
         $delete = DB::table("in_order")
         ->where([
             "id_order" => $this->getKey(),
-            "id_product" => $product->id_product,
+            "id_product" => $id_product,
         ])
         ->delete();
     }

@@ -15,8 +15,8 @@
             <input type="text" id="password" class="form-control">
         </div>
         <div class="form-group col-sm-3">
-            <label for="repeatpassword">Repeat password</label>
-            <input type="text" id="repeatpassword" class="form-control">
+            <label for="repeat-password">Repeat password</label>
+            <input type="text" id="repeat-password" class="form-control">
         </div>
     </div>
 
@@ -102,8 +102,9 @@
                 "phone": $("#phone").val(),
             };
 
-            if($("#password").val().length > 4) {
+            if($("#password").val().length > 5) {
                 data["password"] = $("#password").val();
+                data["repeatPassword"] = $("#repeat-password").val();
             }
 
             ng.api.updateProfile(data)

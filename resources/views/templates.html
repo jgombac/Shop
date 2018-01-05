@@ -9,7 +9,7 @@
             <div>{{:name}}</div>
             <div>{{if sum}} {{:sum}} {{else}} {{:price}} {{/if}}€</div>
             {{if locked && sum}}<span>{{:num_products}}</span>{{else sum}}<input class="form-control js-numProducts" type="text" value="{{:num_products}}"> {{/if}}
-            {{if rating}}
+            {{if rating >= 0}}
             <ul class="rate-area" data-ng-product="{{:id_product}}">              
                 <input type="checkbox" class="5-star star" name="rating" value="5" /><label data-ng-stars="5-star" title="Amazing">5 stars</label>
                 <input type="checkbox" class="4-star star" name="rating" value="4" /><label data-ng-stars="4-star" title="Good">4 stars</label>
