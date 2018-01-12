@@ -205,7 +205,7 @@ class productController extends BaseController
     public function verifyFields($fields) {
 
         foreach ($fields as $key => $val) {
-            if($val == null){
+            if($val === null){
                 return $key;
             }
             switch ($key) {
@@ -228,7 +228,7 @@ class productController extends BaseController
                     }
                     break;
                 case "path":
-                    if (!preg_match("/^[a-zA-Z0-9\_\-]+\.(jpg|png|pneg|jpeg)$/", $val)) {
+                    if (!preg_match("/^[a-zA-Z0-9\_\-\(\)\ ]+\.(jpg|png|pneg|jpeg)$/", $val)) {
                         return $key;
                     }  
                     break;
@@ -238,7 +238,7 @@ class productController extends BaseController
                     }  
                     break;
                 case "active":
-                    if ($val != 0 || $val != 1 || $val != "true" || $val != "false") {
+                    if ($val == 0 || $val == 1 || $val == "true" || $val == "false" || $val == true || $val == false) {
                         continue;
                     } 
                     else{

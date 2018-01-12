@@ -6,6 +6,32 @@
 }
 
 img {
-    max-width: 100%;
-    max-height: 400px;
+    height: 200px;
+    max-width: 300px;
+    width: 100%;
+    max-height: 100%;
 }
+
+.img-wrapper {
+    height: auto;
+}
+
+.img-container {
+    height: 200px;
+    max-width: 300px;
+    margin: 15px auto;
+}
+
+.btn-container {
+    display: flex;
+    justify-content: space-between;
+}
+
+// @font-face {
+//     font-family: 'Glyphicons Halflings';
+//     src: url('/fonts/vendor/bootstrap-sass/bootstrap/glyphicons-halflings-regular.eot');
+//     src: url('/fonts/vendor/bootstrap-sass/bootstrap/glyphicons-halflings-regular.eot') format('embedded-opentype'), 
+//     url('/fonts/vendor/bootstrap-sass/bootstrap/glyphicons-halflings-regular.woff') format('woff'), 
+//     url('/fonts/vendor/bootstrap-sass/bootstrap/glyphicons-halflings-regular.ttf') format('truetype'), 
+//     url('/fonts/vendor/bootstrap-sass/bootstrap/glyphicons-halflings-regular.svg') format('svg');
+//   }

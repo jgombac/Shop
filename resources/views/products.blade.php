@@ -5,7 +5,7 @@
 <a href="/products/add" class="btn btn-primary">Add new product</a>
 @endif
 <div class="container">
-    <div class="js-productTable">
+    <div class="js-productTable row">
     </div>
 </div>
 @stop

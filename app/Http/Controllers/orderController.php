@@ -240,7 +240,7 @@ class orderController extends BaseController
     public function verifyFields($fields) {
 
         foreach ($fields as $key => $val) {
-            if($val == null){
+            if($val === null){
                 return $key;
             }
             switch ($key) {

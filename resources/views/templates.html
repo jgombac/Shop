@@ -1,11 +1,11 @@
 <script id="productTmpl" type="text/x-jsrender">
-    <div class="panel row">
-        <div class="col-xs-12 col-md-8">
+    <div class="panel col-lg-3 col-md-4 col-sm-6">
+        <div class="img-container">
             {{for images}}
             <img src="/images/{{:path}}" alt="Image">
             {{/for}}
         </div>
-        <div class="col-xs-12 col-md-4">
+        <div>
             <div>{{:name}}</div>
             <div>{{if sum}} {{:sum}} {{else}} {{:price}} {{/if}}€</div>
             {{if locked && sum}}<span>{{:num_products}}</span>{{else sum}}<input class="form-control js-numProducts" type="text" value="{{:num_products}}"> {{/if}}
@@ -24,15 +24,53 @@
                 {{if cart}}<button class="btn btn-primary js-updateCart" data-ng-product="{{:id_product}}">Update</button>{{/if}}
                 {{if !sum}}
                 <input class="form-control js-numProducts" type="text" value="1">
-                <button class="btn btn-primary js-purchase" data-ng-product="{{:id_product}}">Purchase</button>
-                {{/if}}
-                <button class="btn btn-default">
-                    <a href="/products/{{:id_product}}">Details</a>
-                </button>
-            </div>
-            
+                <div class="btn-container">
+                    <button class="btn btn-primary js-purchase" data-ng-product="{{:id_product}}">Purchase</button>
+                    {{/if}}
+                    <button class="btn btn-default">
+                        <a href="/products/{{:id_product}}">Details</a>
+                    </button>
+                </div>
+            </div>      
         </div>
+    </div>
+</script>
 
+<script id="productDetailsTmpl" type="text/x-jsrender">
+    <div class="panel">
+        <div>
+            {{for images}}
+            <img src="/images/{{:path}}" alt="Image">
+            {{/for}}
+        </div>
+        <div>
+            <div>{{:name}}</div>
+            <div>{{if sum}} {{:sum}} {{else}} {{:price}} {{/if}}€</div>
+            {{if locked && sum}}<span>{{:num_products}}</span>{{else sum}}<input class="form-control js-numProducts" type="text" value="{{:num_products}}"> {{/if}}
+            {{if rating >= 0}}
+            <ul class="rate-area" data-ng-product="{{:id_product}}">              
+                <input type="checkbox" class="5-star star" name="rating" value="5" /><label data-ng-stars="5-star" title="Amazing">5 stars</label>
+                <input type="checkbox" class="4-star star" name="rating" value="4" /><label data-ng-stars="4-star" title="Good">4 stars</label>
+                <input type="checkbox" class="3-star star" name="rating" value="3" /><label data-ng-stars="3-star" title="Average">3 stars</label>
+                <input type="checkbox" class="2-star star" name="rating" value="2" /><label data-ng-stars="2-star" title="Not Good">2 stars</label>
+                <input type="checkbox" class="1-star star" name="rating" value="1" /><label data-ng-stars="1-star" title="Bad">1 star</label>         
+                <span class="num-ratings">/ {{:num_ratings}}</span>        
+            </ul>            
+            {{/if}}
+            <div>
+                
+                {{if cart}}<button class="btn btn-primary js-updateCart" data-ng-product="{{:id_product}}">Update</button>{{/if}}
+                {{if !sum}}
+                <input class="form-control js-numProducts" type="text" value="1">
+                <div class="btn-container">
+                    <button class="btn btn-primary js-purchase" data-ng-product="{{:id_product}}">Purchase</button>
+                    {{/if}}
+                    <button class="btn btn-default">
+                        <a href="/products/{{:id_product}}">Details</a>
+                    </button>
+                </div>
+            </div>      
+        </div>
     </div>
 </script>
 
@@ -84,6 +122,15 @@
         <tr data-ng-order="{{:id_order}} data-ng-user="{{:id_user}}">
             <td><span>{{:created}}</span></td>
             <td>
+                    {{if status == -1}}<span>Cancelled</span>{{/if}}
+                    {{if status == 0}}<span>Pending</span>{{/if}}
+                    {{if status == 1}}<span>Confirmed</span>{{/if}}
+                </td>
+                <td>
+                    {{if processed == 0}}<span>Pending</span>{{/if}}
+                    {{if processed == 1}}<span>Processed</span>{{/if}}
+                </td>
+            <td>
                 <a href="/orders/{{:id_order}}">Details</a>
             </td>
         </tr>
@@ -111,7 +158,7 @@
             <a href="/orders/{{:id_order}}">Details</a>
         </td>
         <td>
-            <span class="js-update">Update</span>
+            <span class="js-update btn btn-primary">Update</span>
         </td>
     </tr>
 {{/for}}
@@ -153,7 +200,7 @@
                 <span class="js-toggleChange glyphicon glyphicon-pencil"></span>
             </td>
             <td>
-                <span class="js-update glyphicon glyphicon-floppy-disk"></span>
+                <span class="js-update btn btn-primary">Update</span>
             </td>
         </tr>
     {{/for}}

@@ -72,6 +72,7 @@
             var data = {
                 "email": $("#email").val(),
                 "password": $("#password").val(),
+                "repeatPassword": $("#repeatpassword").val(),
                 "firstName": $("#first-name").val(),
                 "lastName": $("#last-name").val(),
                 "address": $("#address").val(),
@@ -83,7 +84,12 @@
 
             ng.api.register(data)
                 .done(function (response){
+                    @if(isset($type) && $type == "Seller")
+                    window.location.href =  "/customers"
+                    @endif
+                    @if(!isset($type) || $type == "anon")
                     window.location.href =  "/login"
+                    @endif
                 })
                 .fail(function (error){
                     console.log(error);

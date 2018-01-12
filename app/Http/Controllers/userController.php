@@ -440,7 +440,7 @@ class userController extends BaseController
     public function verifyFields($fields) {
 
         foreach ($fields as $key => $val) {
-            if($val == null){
+            if($val === null){
                 return $key;
             }
             switch ($key) {
@@ -460,7 +460,7 @@ class userController extends BaseController
                     }
                     break;
                 case "active":
-                    if ($val == 0 || $val == 1 || $val == "true" || $val == "false") {
+                    if ($val == 0 || $val == 1 || $val == "true" || $val == "false" || $val == true || $val == false) {
                         continue;
                     } 
                     else{

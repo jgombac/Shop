@@ -15,7 +15,7 @@
         ng.api.getProduct(productId)
             .done(function (response) {
 
-                var tmpl = $.templates("#productTmpl");
+                var tmpl = $.templates("#productDetailsTmpl");
                 @if(isset($type) && $type == "Seller") 
                 tmpl = $.templates("#productSellerTmpl");
 

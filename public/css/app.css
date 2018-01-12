@@ -8355,6 +8355,7 @@ button.close {
   border-style: none;
   padding: 0;
   position: relative;
+  height: 40px;
 }
 
 .rate-area .num-ratings {
@@ -8418,7 +8419,28 @@ button.close {
 }
 
 img {
-  max-width: 100%;
-  max-height: 400px;
+  height: 200px;
+  max-width: 300px;
+  width: 100%;
+  max-height: 100%;
+}
+
+.img-wrapper {
+  height: auto;
+}
+
+.img-container {
+  height: 200px;
+  max-width: 300px;
+  margin: 15px auto;
+}
+
+.btn-container {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: justify;
+      -ms-flex-pack: justify;
+          justify-content: space-between;
 }
 
