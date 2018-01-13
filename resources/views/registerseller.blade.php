@@ -8,7 +8,7 @@
     </div>
     <div class="form-group">
         <label for="password">Password</label>
-        <input type="text" id="password" class="form-control">
+        <input type="password" id="password" class="form-control">
     </div>
     <div class="form-group">
         <label for="first-name">First name</label>
@@ -35,13 +35,8 @@
 
             ng.api.register(data)
                 .done(function (response){
-                    console.log(response)
-                    if (response.code == 200) {
-                        window.location.pathname = "/sellers";
-                    }
-                    else if (response.message != undefined){
-                        alert(response.message);
-                    }
+                    window.location.pathname = "/sellers";
+
                 })
                 .fail(function (error){
                     console.log(error);

@@ -51,6 +51,7 @@
                     $(".js-orderTable").append(tmpl.render(item));
                 });
                 var check = createCheck(response.products);
+                console.log(check);
                 var tmpl = $.templates("#checkTmpl");
                 $(".modal-body").append(tmpl.render(check));
             })

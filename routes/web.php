@@ -159,11 +159,7 @@ Route::get("/admin", function () {
 
 Route::get("/seller", function () {
     if (isset($_COOKIE["auth"])){
-        $auth = $_COOKIE["auth"];
-        $type = (new authController)->getUserType($auth);
-        if ($type == "seller") {
-            return redirect("/");
-        }
+        return redirect("/");
     }
    return view("sellerlogin");
  });

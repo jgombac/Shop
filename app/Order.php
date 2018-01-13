@@ -23,8 +23,9 @@ class Order extends Model
 
     public function withProducts() {
         $items = $this::join("in_order", "in_order.id_order", "=", "orders.id_order")
+        ->join("products", "in_order.id_product", "=", "products.id_product")
         ->where("in_order.id_order", $this->getKey())
-        ->select("in_order.id_product", "in_order.num_products", "in_order.price")
+        ->select("in_order.id_product", "products.name", "in_order.num_products", "in_order.price")
         ->get();
         foreach($items as $item) {
             $item["images"] = Product::find($item->id_product)->images;

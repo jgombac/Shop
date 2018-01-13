@@ -11,11 +11,11 @@
     <div class="row">
         <div class="form-group col-sm-3">
             <label for="password">Password</label>
-            <input type="text" id="password" class="form-control">
+            <input type="password" id="password" class="form-control">
         </div>
         <div class="form-group col-sm-3">
             <label for="repeatpassword">Repeat password</label>
-            <input type="text" id="repeatpassword" class="form-control">
+            <input type="password" id="repeatpassword" class="form-control">
         </div>
     </div>
 

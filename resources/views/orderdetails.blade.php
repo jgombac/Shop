@@ -18,7 +18,7 @@
         tmpl = $.templates("#orderSellerTmpl");
         @endif
         //$(".js-orderTable").append(tmpl.render(order.order));
-        $(".js-orderTable").append(order.products.length + " products.");
+        //$(".js-orderTable").append(order.products.length + " products.");
         order.products.forEach(function (item) {
             item.images = item.images.slice(0, 1);
             item.sum = item.num_products * item.price;
